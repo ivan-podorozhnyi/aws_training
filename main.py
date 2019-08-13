@@ -1,6 +1,5 @@
-import s3
 import boto3
-import rds
+from modules import rds, s3
 
 if __name__ == "__main__":
     s3_client = boto3.client('s3')
