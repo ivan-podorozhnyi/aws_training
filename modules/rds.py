@@ -1,25 +1,13 @@
-DB_VARS = {
-    "DBName": "db_name",
-    "DBInstanceIdentifier": "instance_name",
-    "AllocatedStorage": 20,
-    "DBInstanceClass": "db.m3.medium",
-    "Engine": "postgres",
-    "MasterUsername": "username",
-    "MasterUserPassword": "password",
-    "VpcSecurityGroupIds": [
-        "sg-0007c6489efbd9bca",
-    ],
-    "DBSubnetGroupName": "my-subnet",
-    "DBParameterGroupName": "my-parameter-group",
-    "BackupRetentionPeriod": 7,
-    "MultiAZ": True,
-    "EngineVersion": "10.0.1",
-    "PubliclyAccessible": False,
-    "StorageType": "gp2",
-}
+from troposphere import Ref
+from troposphere.rds import DBInstance
 
 
-def create_rds(bucket, db_vars=None):
-    if db_vars is None:
-        db_vars = DB_VARS
-    bucket.create_db_instance(**db_vars)
+def create_rds_db(db_name, db_user, db_password):
+    db = DBInstance('Database',
+                    DBInstanceClass='db.t2.micro',
+                    Engine='MySQL',
+                    AllocatedStorage="5",
+                    DBName=Ref(db_name),
+                    MasterUsername=Ref(db_user),
+                    MasterUserPassword=Ref(db_password))
+    return db

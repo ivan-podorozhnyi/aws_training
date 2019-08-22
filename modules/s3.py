@@ -1,22 +1,13 @@
-import logging
-from botocore.exceptions import ClientError
+from troposphere import GetAtt
+from troposphere.s3 import Bucket, PublicRead, VersioningConfiguration, \
+    NotificationConfiguration, LambdaConfigurations
 
+from .lambda_functions.lambdas3 import lambda_handler
 
-def create_bucket(client, bucket_name, enable_versioning=True):
-    """Create an S3 bucket
-
-    :param enable_versioning: option to enable versioning
-    :param client: S3 client
-    :param bucket_name: Bucket to create
-    :return: Instance of bucket if bucket created, else False
-    """
-
-    try:
-        bucket = client.create_bucket(Bucket=bucket_name)
-        if enable_versioning:
-            client.BucketVersioning(bucket_name).enable()
-
-    except ClientError as e:
-        logging.error(e)
-        return False
-    return bucket
+bucket = Bucket("S3Bucket",
+                AccessControl=PublicRead,
+                VersioningConfiguration=VersioningConfiguration(Status="Enabled"),
+                NotificationConfiguration=NotificationConfiguration(
+                    LambdaConfigurations=[LambdaConfigurations(
+                        Event='s3:ObjectCreated:*',
+                        Function=GetAtt(lambda_handler, 'Arn'))]))
